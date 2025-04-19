@@ -3,7 +3,7 @@
 #include <vector>
 #include <map>
 #include <limits>
-
+#include <iomanip>
 using namespace std;
 
 class KhachHang {
@@ -43,6 +43,9 @@ public:
         if (nam!=n.nam) return nam<n.nam;
         if (thang!=n.thang) return thang<n.thang;
         return ngay<n.ngay;
+    }
+    bool operator==(const Ngay& n) const {
+        return (ngay==n.ngay && thang==n.thang && nam==n.nam);
     }
 };
 
@@ -109,6 +112,10 @@ double tinhTien(const Gio& bd, const Gio& kt, double giaCao, double giaThuong) {
     return gio*giaThuong;
 }
 
+bool trungGio(const Gio& t, const Gio& bd, const Gio& kt) {
+    return !(t < bd) && (t < kt);
+}
+
 int main(){
     vector<San> dsSan;
     for(int i=1;i<=6;i++) dsSan.push_back(San(i,"Trong nha","Tham"));
@@ -138,20 +145,43 @@ int main(){
                 break;
             }
             case 2:{
-                int maKh=nhapSo("Ma khach hang: ");
-                bool ok=false;
-                for(size_t i=0;i<dsKh.size();i++) if(dsKh[i].maKh==maKh) ok=true;
-                if(!ok){cout<<"Khach hang khong hop le."<<endl;break;}
+                int isMember = nhapSo("La thanh vien? (1-Co,0-Khach le): ");
+                int maKh;
+                if(isMember==1){
+                    maKh=nhapSo("Ma khach hang: ");
+                    bool ok=false;
+                    for(size_t i=0;i<dsKh.size();i++) if(dsKh[i].maKh==maKh) ok=true;
+                    if(!ok){cout<<"Khach hang khong hop le."<<endl;break;}
+                } else {
+                    maKh=0;
+                }
                 DatSan d;
                 d.maDat=nextDat++;
                 d.maKh=maKh;
                 nhapNgay(d.ngay);
-                int ms;
-                do{ms=nhapSo("Ma san (1-12): ");}
-                while(ms<1||ms>12);
-                d.maSan=ms;
-                do{cout<<"Gio BD (g p): ";cin>>d.bd.gio>>d.bd.phut;}while(!hopLeGio(d.bd));
-                do{cout<<"Gio KT (g p): ";cin>>d.kt.gio>>d.kt.phut;}while(!hopLeGio(d.kt));
+                d.maSan=nhapSo("Ma san (1-12): ");
+                while(d.maSan<1||d.maSan>12) {
+                    cout<<"Ma san khong hop le. Vui long nhap lai."<<endl;
+                    d.maSan=nhapSo("Ma san (1-12): ");
+                }
+                cout<<"Nhap gio bat dau (g p): "; cin>>d.bd.gio>>d.bd.phut;
+                while(!hopLeGio(d.bd)){
+                    cout<<"Gio khong hop le. Vui long nhap lai: "; cin>>d.bd.gio>>d.bd.phut;
+                }
+                cout<<"Nhap gio ket thuc (g p): "; cin>>d.kt.gio>>d.kt.phut;
+                while(!hopLeGio(d.kt)){
+                    cout<<"Gio khong hop le. Vui long nhap lai: "; cin>>d.kt.gio>>d.kt.phut;
+                }
+                bool trung=false;
+                for(size_t i=0;i<dsDat.size();i++){
+                    if(dsDat[i].maSan==d.maSan && dsDat[i].ngay==d.ngay) {
+                        if(trungGio(d.bd, dsDat[i].bd, dsDat[i].kt) ||
+                           trungGio(d.kt, dsDat[i].bd, dsDat[i].kt)) {
+                            trung=true; break;
+                        }
+                    }
+                }
+                if(trung){ cout<<"Khung gio da duoc dat. Quay lai menu."<<endl; break; }
                 dsDat.push_back(d);
                 double tien = tinhTien(d.bd,d.kt,120,80);
                 ThanhToan tt;
@@ -159,56 +189,120 @@ int main(){
                 tt.maDat=d.maDat;
                 tt.soTien=tien;
                 tt.daThanh=false;
+                cout<<"So tien can thanh toan: "<<tien<<" nghin"<<endl;
+                int daTT=nhapSo("Da thanh toan (1-Co,0-Chua): ");
+                tt.daThanh = (daTT==1);
                 dsTT.push_back(tt);
-                cout<<"Dat san thanh cong. Tien: "<<tien<<" nghin"<<endl;
+                cout<<"Dat san thanh cong."<<endl;
                 break;
             }
-            case 3:{
-                cout<<"1. Them khach hang"<<endl;
-                cout<<"2. Xem lich su dat san cua khach"<<endl;
-                int m=nhapSo("Lua chon: ");
-                if(m==1){
+            case 3: {
+                cout << "1. Them khach hang" << endl;
+                cout << "2. Xem lich su dat san cua khach" << endl;
+                int m = nhapSo("Lua chon: ");
+                if (m == 1) {
                     KhachHang kh;
-                    kh.maKh=nextKh++;
-                    nhapChuoi("Ten: ",kh.ten);
-                    nhapChuoi("SDT: ",kh.soDienThoai);
-                    nhapChuoi("Dia chi: ",kh.diaChi);
-                    dsKh.push_back(kh);
-                    cout<<"Them thanh cong. Ma KH: "<<kh.maKh<<endl;
-                } else if(m==2){
-                    int ma=nhapSo("Ma KH: ");
-                    cout<<"Lich su dat san:"<<endl;
-                    for(size_t i=0;i<dsDat.size();i++){
-                        if(dsDat[i].maKh==ma){
-                            cout<<"Dat "<<dsDat[i].maDat<<": San "<<dsDat[i].maSan
-                                <<" ngay "<<dsDat[i].ngay.ngay<<"/"<<dsDat[i].ngay.thang
-                                <<"/"<<dsDat[i].ngay.nam
-                                <<" "<<dsDat[i].bd.gio<<":"<<dsDat[i].bd.phut
-                                <<"-"<<dsDat[i].kt.gio<<":"<<dsDat[i].kt.phut<<endl;
+                    nhapChuoi("Ten: ", kh.ten);
+                    nhapChuoi("SDT: ", kh.soDienThoai);
+                    nhapChuoi("Dia chi: ", kh.diaChi);
+            
+                    bool soTrung = false;
+                    for (size_t i = 0; i < dsKh.size(); i++) {
+                        if (dsKh[i].soDienThoai == kh.soDienThoai) {
+                            soTrung = true;
+                            break;
+                        }
+                    }
+            
+                    if (soTrung) {
+                        cout << "So dien thoai da ton tai. Khong them khach hang." << endl;
+                    } else {
+                        kh.maKh = nextKh++;
+                        dsKh.push_back(kh);
+                        cout << "Them thanh cong. Ma KH: "
+                             << setw(4) << setfill('0') << kh.maKh << setfill(' ') << endl;
+                    }
+                } else if (m == 2) {
+                    int ma = nhapSo("Ma KH: ");
+                    bool co = false;
+                    for (size_t i = 0; i < dsKh.size(); i++) {
+                        if (dsKh[i].maKh == ma) {
+                            co = true;
+                            break;
+                        }
+                    }
+                    if (!co) {
+                        cout << "Ma khach hang khong hop le." << endl;
+                        break;
+                    }
+                    cout << "Lich su dat san:" << endl;
+                    for (size_t i = 0; i < dsDat.size(); i++) {
+                        if (dsDat[i].maKh == ma) {
+                            cout << "Dat " << dsDat[i].maDat << ": San " << dsDat[i].maSan
+                                 << " " << dsDat[i].ngay.ngay << "/" << dsDat[i].ngay.thang
+                                 << "/" << dsDat[i].ngay.nam << " "
+                                 << dsDat[i].bd.gio << ":" << setw(2) << setfill('0') << dsDat[i].bd.phut
+                                 << "-" << dsDat[i].kt.gio << ":" << setw(2) << setfill('0') << dsDat[i].kt.phut
+                                 << setfill(' ') << endl;
                         }
                     }
                 }
                 break;
             }
+            
             case 4:{
                 cout<<"Lich thanh toan:"<<endl;
                 for(size_t i=0;i<dsTT.size();i++){
                     cout<<"TT "<<dsTT[i].maTT
                         <<" Dat"<<dsTT[i].maDat
                         <<" Tien:"<<dsTT[i].soTien
-                        <<" DaTT:"<<(dsTT[i].daThanh?"Yes":"No")<<endl;
+                        <<" DaTT:"<<(dsTT[i].daThanh?"Co":"Chua")<<endl;
                 }
                 break;
             }
             case 5:{
-                cout<<"Doanh thu: ";
-                double sum=0;
-                for(size_t i=0;i<dsTT.size();i++) sum+=dsTT[i].soTien;
-                cout<<sum<<" nghin"<<endl;
+                double sum=0; int count=0;
+                for(size_t i=0;i<dsTT.size();i++){
+                    sum+=dsTT[i].soTien;
+                    count++;
+                }
+                cout<<"Doanh thu: "<<sum<<" nghin"<<endl;
+                cout<<"So luot dat san: "<<count<<endl;
                 break;
             }
             case 6:{
-                cout<<"Chua ho tro."<<endl;
+                cout<<"1. Tim khach hang"<<endl;
+                cout<<"2. Loc san trong gio"<<endl;
+                int m=nhapSo("Lua chon: ");
+                if(m==1){
+                    string key;
+                    cout<<"Nhap tu khoa (ten hoac SDT): "; cin.ignore(); getline(cin,key);
+                    cout<<"Ket qua tim kiem:"<<endl;
+                    for(size_t i=0;i<dsKh.size();i++){
+                        if(dsKh[i].ten.find(key)!=string::npos ||
+                           dsKh[i].soDienThoai.find(key)!=string::npos){
+                            cout<<"MaKH:"<<setw(4)<<setfill('0')<<dsKh[i].maKh<<setfill(' ')
+                                <<" Ten:"<<dsKh[i].ten
+                                <<" SDT:"<<dsKh[i].soDienThoai<<endl;
+                        }
+                    }
+                } else if(m==2){
+                    Ngay ngay;
+                    nhapNgay(ngay);
+                    Gio t;
+                    cout<<"Nhap gio can loc (g p): "; cin>>t.gio>>t.phut;
+                    cout<<"San trong tai: ";
+                    for(size_t i=0;i<dsSan.size();i++){
+                        bool free=true;
+                        for(size_t j=0;j<dsDat.size();j++){
+                            if(dsDat[j].maSan==dsSan[i].layMaSan() && dsDat[j].ngay==ngay){
+                                if(trungGio(t, dsDat[j].bd, dsDat[j].kt)) free=false;
+                            }
+                        }
+                        if(free) cout<<dsSan[i].layMaSan()<<" ";
+                    }
+                    cout<<endl;
+                }
                 break;
             }
             case 7: return 0;
