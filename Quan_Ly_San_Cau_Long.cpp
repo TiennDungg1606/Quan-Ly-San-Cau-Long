@@ -145,7 +145,7 @@ int main(){
                 break;
             }
             case 2:{
-                int isMember = nhapSo("La thanh vien? (1-Co,0-Khach le): ");
+                int isMember = nhapSo("La thanh vien? (1-Co,0-Khach vang lai): ");
                 int maKh;
                 if(isMember==1){
                     maKh=nhapSo("Ma khach hang: ");
@@ -256,7 +256,7 @@ int main(){
                     cout<<"TT "<<dsTT[i].maTT
                         <<" Dat"<<dsTT[i].maDat
                         <<" Tien:"<<dsTT[i].soTien
-                        <<" DaTT:"<<(dsTT[i].daThanh?"Co":"Chua")<<endl;
+                        <<" Da Thanh Toan:"<<(dsTT[i].daThanh?"Roi":"Chua")<<endl;
                 }
                 break;
             }
