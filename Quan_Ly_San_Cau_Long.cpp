@@ -97,7 +97,7 @@ public:
     void nhapChuoi(const string& s, string& out);
     void nhapNgay(Ngay& n);
     bool hopLeGio(const Gio& g);
-    double tinhTien(const Gio& bd, const Gio& kt, const &giaCao, const &giaThuong);
+    double tinhTien(const Gio& bd, const Gio& kt, const int &giaCao, const int &giaThuong);
     bool trungGio(const Gio& t, const Gio& bd, const Gio& kt);
     void Thuc_hien(vector<San>& dsSan, vector<KhachHang>& dsKh, vector<DatSan>& dsDat,
          vector<ThanhToan>& dsTT, int &nextKh, int &nextDat, int &nextTT, San &s) {
@@ -423,7 +423,7 @@ bool Tinhnang::hopLeGio(const Gio& g) {
     return g.gio >= 0 && g.gio < 24 && g.phut >= 0 && g.phut < 60;
 }
 
-double Tinhnang::tinhTien(const Gio& bd, const Gio& kt, const &giaCao, const &giaThuong) {
+double Tinhnang::tinhTien(const Gio& bd, const Gio& kt, const int &giaCao, const int &giaThuong) {
     int phut = (kt.gio * 60 + kt.phut) - (bd.gio * 60 + bd.phut);
     double gio = phut / 60.0;
     if (bd.gio >= 18 && bd.gio < 22) return gio * giaCao;
