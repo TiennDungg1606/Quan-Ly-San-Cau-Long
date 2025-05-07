@@ -64,6 +64,7 @@ public:
 //định nghĩa lớp quản lí đặt sân
 class DatSan {
 private:
+    int maKh;
     int maDat;
     int maSan;
     Ngay ngay;
@@ -201,6 +202,7 @@ private:
             }
             DatSan d;
             d.maDat = nextDat++;
+            d.maKh = maKh;
             nhapNgay(d.ngay);
 			cout << "*-*-*-*-*-* Danh sach san *-*-*-*-*-*" << endl;
 			for (size_t i = 0;i < dsSan.size();i++) {
@@ -241,7 +243,7 @@ private:
                 }
             }
             if (trung) { cout << "Khung gio da duoc dat. Quay lai menu." << endl;
-            d.maDat--;
+            nextDat--;
             }
             else {
             dsDat.push_back(d);
@@ -262,7 +264,7 @@ private:
                 int daTT = nhapSo("Ban muon (1-Thanh toan, 0-Tra sau)?: ");
                 if (daTT == 1) {
                     tt.soTien = tien;
-                    tt.no = 0;
+                    tt.no = 0.0;
                     tt.daThanh = true;
                     dsTT.push_back(tt);
                     cout << "*-*-*-*-*-*-*-* Dat san thanh cong *-*-*-*-*-*-*-*" << endl;
@@ -270,7 +272,7 @@ private:
                 }
                 else {
                     tt.no = tien;
-                    tt.soTien = 0;
+                    tt.soTien = 0.0;
                     tt.daThanh = false;
                     dsTT.push_back(tt);
                     cout << "*-*-*-*-*-*-*-* Dat san thanh cong *-*-*-*-*-*-*-*" << endl;
@@ -338,22 +340,24 @@ private:
             else {
                 cout << "*-*-*-*-*-*-* Lich su dat san *-*-*-*-*-*-*" << endl;
                 int dem = 0;
-                for (size_t i = 0; i < dsKh.size(); i++) {
-                    if (dsKh[i].maKh != ma) {
+                for (size_t i = 0; i < dsDat.size(); i++) {
+                    if (dsDat[i].maKh == ma) {
                         dem++;
                     }
                 }
                 if (dem == 0) { cout << "      Khach hang chua thuc hien dat san!"; }
-                for (size_t i = 0; i < dsKh.size(); i++) {
-                    if (dsKh[i].maKh == ma) {
-                        cout << "Dat " << dsDat[i].maDat << ": San " << dsDat[i].maSan
-                            << " " << dsDat[i].ngay.ngay << "/" << dsDat[i].ngay.thang
-                            << "/" << dsDat[i].ngay.nam << " "
+                else {
+                for (size_t i = 0; i < dsDat.size(); i++) {
+                    if (dsDat[i].maKh == ma) {
+                        cout << "Ma dat: " << dsDat[i].maDat << ", San " << dsDat[i].maSan
+                            << ", " << dsDat[i].ngay.ngay << "/" << dsDat[i].ngay.thang
+                            << "/" << dsDat[i].ngay.nam << ", "
                             << dsDat[i].bd.gio << ":" << setw(2) << setfill('0') << dsDat[i].bd.phut
                             << "-" << dsDat[i].kt.gio << ":" << setw(2) << setfill('0') << dsDat[i].kt.phut
                             << setfill(' ') << endl;
                     }
                 }
+            }
             }
         }
     }
@@ -371,7 +375,7 @@ private:
         int n = nhapSo("Lua chon : ");
         int count = 0;
         if (n == 1) {
-        double sum = 0; 
+        double sum = 0.0; 
         for (size_t i = 0;i < dsTT.size();i++) {
             sum += dsTT[i].soTien;
             count++;
@@ -379,7 +383,7 @@ private:
         cout << "Doanh thu: " << sum << " nghin" << endl;
         }
         if (n == 2) {
-            double sum = 0; 
+            double sum = 0.0; 
             for (size_t i = 0;i < dsTT.size();i++) {
                 sum += dsTT[i].no;
                 count++;
