@@ -1,3 +1,4 @@
+//khai báo các thư viện cần thiết
 #include <iostream>
 #include <string>
 #include <vector>
@@ -9,6 +10,7 @@
 
 using namespace std;
 
+//định nghĩa lớp Khách hàng
 class KhachHang {
 private:
     int maKh;
@@ -19,6 +21,7 @@ private:
     friend class Tinhnang;
 };
 
+//định nghĩa lớp giờ
 class Gio {
 public:
     int gio;
@@ -29,6 +32,7 @@ public:
     }
 };
 
+//định nghĩa lớp ngày
 class Ngay {
 public:
     int ngay;
@@ -56,21 +60,21 @@ public:
         return (ngay == n.ngay && thang == n.thang && nam == n.nam);
     }
 };
-//lớp quản lí đặt sân
+
+//định nghĩa lớp quản lí đặt sân
 class DatSan {
 private:
     int maDat;
-    int maKh;
     int maSan;
     Ngay ngay;
     Gio bd, kt;
     //friend để lớp tính năng truy cập được private
     friend class Tinhnang;
 };
-//lớp thanh toán
+
+// định nghĩa lớp thanh toán
 class ThanhToan {
 private:
-    int maTT;
     int maDat;
     double soTien;
     double no;
@@ -78,7 +82,8 @@ private:
     //friend để lớp tính năng truy cập được private
     friend class Tinhnang;
 };
-//lớp quản lí sân
+
+//định nghĩa lớp quản lí sân
 class San {
 private:
     int maSan;
@@ -97,10 +102,11 @@ public:
     //friend để lớp tính năng truy cập được private
     friend class Tinhnang;
 };
-// lớp tính năng
-class Tinhnang {
 
+//định nghĩa lớp tính năng
+class Tinhnang {
 public:
+    //khai báo các hàm thành viên
     int nhapSo(const string& s);
     void nhapChuoi(const string& s, string& out);
     void nhapNgay(Ngay& n);
@@ -174,7 +180,6 @@ private:
                 << " (" << dsSan[i].layLoai()
                 << ", " << dsSan[i].layBeMat() << ")\n";
         }
-
         cout << "-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*";
     }
 
@@ -196,7 +201,6 @@ private:
             }
             DatSan d;
             d.maDat = nextDat++;
-            d.maKh = maKh;
             nhapNgay(d.ngay);
 			cout << "*-*-*-*-*-* Danh sach san *-*-*-*-*-*" << endl;
 			for (size_t i = 0;i < dsSan.size();i++) {
@@ -210,7 +214,7 @@ private:
 							<< " ";
 					}
 				}
-				if (!daDat) cout << "Trong ";
+				if (daDat==false) cout << "Trong ";
 				cout << endl;
 			}
 			cout << "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" << endl;
@@ -236,11 +240,13 @@ private:
                     }
                 }
             }
-            if (trung) { cout << "Khung gio da duoc dat. Quay lai menu." << endl;}
+            if (trung) { cout << "Khung gio da duoc dat. Quay lai menu." << endl;
+            d.maDat--;
+            }
+            else {
             dsDat.push_back(d);
             double tien = tinhTien(d.bd, d.kt,s);
             ThanhToan tt;
-            tt.maTT = nextTT++;
             tt.maDat = d.maDat;
             tt.daThanh = false;
             cout << "*So tien can thanh toan: " << tien << " nghin" << endl;
@@ -256,6 +262,7 @@ private:
                 int daTT = nhapSo("Ban muon (1-Thanh toan, 0-Tra sau)?: ");
                 if (daTT == 1) {
                     tt.soTien = tien;
+                    tt.no = 0;
                     tt.daThanh = true;
                     dsTT.push_back(tt);
                     cout << "*-*-*-*-*-*-*-* Dat san thanh cong *-*-*-*-*-*-*-*" << endl;
@@ -263,12 +270,14 @@ private:
                 }
                 else {
                     tt.no = tien;
+                    tt.soTien = 0;
                     tt.daThanh = false;
                     dsTT.push_back(tt);
                     cout << "*-*-*-*-*-*-*-* Dat san thanh cong *-*-*-*-*-*-*-*" << endl;
                     cout << "                 Ma dat san: " << setw(4) << setfill('0') << d.maDat << setfill(' ') << '.' << endl;
                 }
             }
+        }
         }
         else if (m == 2) {
             int maDat = nhapSo("Ma dat san: ");
@@ -277,15 +286,16 @@ private:
                 if (dsDat[i].maDat == maDat) {
                     co = true;
                     dsDat.erase(dsDat.begin() + i);
+                    dsTT.erase(dsTT.begin() + i);
                     break;
                 }
             }
-            if (!co) cout << "*-*-*-*-*-*-* Ma dat khong hop le *-*-*-*-*-*-*" << endl;
+            if (co==false) cout << "*-*-*-*-*-*-* Ma dat khong hop le *-*-*-*-*-*-*" << endl;
             else cout << "*-*-*-*-*-*-* Huy dat san thanh cong *-*-*-*-*-*-*" << endl;
         }
     }
     void Quan_ly_Kh(vector<San>& dsSan, vector<KhachHang>& dsKh, vector<DatSan>& dsDat, int &nextKh) {
-        cout << "1. Them khach hang" << endl;
+        cout << "1. Dang ki khach hang" << endl;
         cout << "2. Xem lich su dat san cua khach" << endl;
         int m = nhapSo("Lua chon: ");
         if (m == 1) {
@@ -304,7 +314,7 @@ private:
             }
 
             if (soTrung) {
-                cout << "So dien thoai da ton tai. Khong them khach hang." << endl;
+                cout << "So dien thoai da ton tai. Khong the them khach hang." << endl;
             }
             else {
                 kh.maKh = nextKh++;
@@ -322,21 +332,20 @@ private:
                     break;
                 }
             }
-            if (!co) {
+            if (co == false) {
                 cout << "*-*-*-*Ma khach hang khong hop le! *-*-*-*" << endl;
             }
             else {
-
                 cout << "*-*-*-*-*-*-* Lich su dat san *-*-*-*-*-*-*" << endl;
                 int dem = 0;
-                for (size_t i = 0; i < dsDat.size(); i++) {
-                    if (dsDat[i].maKh != ma) {
+                for (size_t i = 0; i < dsKh.size(); i++) {
+                    if (dsKh[i].maKh != ma) {
                         dem++;
                     }
                 }
                 if (dem == 0) { cout << "      Khach hang chua thuc hien dat san!"; }
-                for (size_t i = 0; i < dsDat.size(); i++) {
-                    if (dsDat[i].maKh == ma) {
+                for (size_t i = 0; i < dsKh.size(); i++) {
+                    if (dsKh[i].maKh == ma) {
                         cout << "Dat " << dsDat[i].maDat << ": San " << dsDat[i].maSan
                             << " " << dsDat[i].ngay.ngay << "/" << dsDat[i].ngay.thang
                             << "/" << dsDat[i].ngay.nam << " "
@@ -349,12 +358,11 @@ private:
         }
     }
     void Thanh_toan(vector<ThanhToan>& dsTT) {
-        cout << "Lich thanh toan:" << endl;
+        cout << "Lich su thanh toan:" << endl;
         for (size_t i = 0;i < dsTT.size();i++) {
-            cout << "Ma thanh toan: " << setw(4) << setfill('0') << dsTT[i].maTT << setfill(' ') << ", "
-                << " Ma dat: " << setw(4) << setfill('0') << dsTT[i].maDat << setfill(' ') << ", "
+            cout<< " Ma dat: " << setw(4) << setfill('0') << dsTT[i].maDat << setfill(' ') << ", "
                 << " So tien:" << (dsTT[i].daThanh==true ? dsTT[i].soTien : dsTT[i].no) << ", "
-                << " Da Thanh Toan:" << (dsTT[i].daThanh ? "Roi" : "Chua") << endl;
+                << " Da Thanh Toan:" << (dsTT[i].daThanh==true ? "Roi" : "Chua") << endl;
         }
     }
     void Doanh_thu(vector<ThanhToan>& dsTT, vector<KhachHang>& dsKh, vector<DatSan>& dsDat) {
@@ -390,7 +398,7 @@ private:
             string maKhStr = to_string(dsKh[i].maKh);
             while (maKhStr.length() < 4) maKhStr = "0" + maKhStr;
 
-            if (maKhStr.find(key) != string::npos || dsKh[i].soDienThoai.find(key) != string::npos) {
+            if (maKhStr == key || dsKh[i].soDienThoai == key) {
                 cout << "MaKH:" << setw(4) << setfill('0') << dsKh[i].maKh << setfill(' ') << ", "
                     << " Ten:" << dsKh[i].ten << ", "
                     << " SDT:" << dsKh[i].soDienThoai << ", "
@@ -443,7 +451,7 @@ private:
             fs << "==================================================" << "\n";
             fs << "San da dat: " << "\n";
             for (size_t i = 0; i < dsDat.size(); i++) {
-                if (dsDat[i].maKh == maKh) {
+                if (dsKh[i].maKh == maKh) {
                     fs << "Ma dat: " << setw(4) << setfill('0') << dsDat[i].maDat << setfill(' ') << "\n";
                     fs << "Ma san: " << dsDat[i].maSan << "\n";
                     fs << "Ngay dat: " << dsDat[i].ngay.ngay << "/" << dsDat[i].ngay.thang
