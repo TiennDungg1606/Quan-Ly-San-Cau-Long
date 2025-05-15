@@ -28,10 +28,10 @@ public:
     int phut;
     //Quá tải toán tử so sánh giờ
     bool operator<=(const Gio& g) const {
-        return (gio <= g.gio) || (gio == g.gio && phut < g.phut);
+        return (gio < g.gio) || (gio == g.gio && phut <= g.phut);
     }
     bool operator>=(const Gio& g) const {
-        return (gio >= g.gio) || (gio == g.gio && phut > g.phut);
+        return (gio > g.gio) || (gio == g.gio && phut >= g.phut);
     }
 };
 
