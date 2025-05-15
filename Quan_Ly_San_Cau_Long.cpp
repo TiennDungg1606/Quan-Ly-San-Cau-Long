@@ -27,8 +27,11 @@ public:
     int gio;
     int phut;
     //Quá tải toán tử so sánh giờ
-    bool operator<(const Gio& g) const {
-        return (gio < g.gio) || (gio == g.gio && phut < g.phut);
+    bool operator<=(const Gio& g) const {
+        return (gio <= g.gio) || (gio == g.gio && phut < g.phut);
+    }
+    bool operator>=(const Gio& g) const {
+        return (gio >= g.gio) || (gio == g.gio && phut > g.phut);
     }
 };
 
@@ -51,11 +54,6 @@ public:
         return ngay <= maxN;
     }
     //Quá tải toán tử so sánh ngày tháng năm
-    bool operator<(const Ngay& n) const {
-        if (nam != n.nam) return nam < n.nam;
-        if (thang != n.thang) return thang < n.thang;
-        return ngay < n.ngay;
-    }
     bool operator==(const Ngay& n) const {
         return (ngay == n.ngay && thang == n.thang && nam == n.nam);
     }
@@ -64,9 +62,9 @@ public:
 //định nghĩa lớp quản lí đặt sân
 class DatSan {
 private:
-    int maKh;
     int maDat;
     int maSan;
+    KhachHang kh;
     Ngay ngay;
     Gio bd, kt;
     //friend để lớp tính năng truy cập được private
@@ -74,9 +72,8 @@ private:
 };
 
 // định nghĩa lớp thanh toán
-class ThanhToan {
+class ThanhToan : private DatSan{
 private:
-    int maDat;
     double soTien;
     double no;
     bool daThanh;
@@ -113,7 +110,7 @@ public:
     void nhapNgay(Ngay& n);
     bool hopLeGio(const Gio& g);
     double tinhTien(const Gio& bd, const Gio& kt,const San& s);
-    bool trungGio(const Gio& t, const Gio& bd, const Gio& kt);
+    bool trungGio(const Gio& bd1, const Gio& kt1, const Gio& bd2, const Gio& kt2);
     string to_string(int x);
     void Thuc_hien(vector<San>& dsSan, vector<KhachHang>& dsKh, vector<DatSan>& dsDat, vector<ThanhToan>& dsTT, int &nextKh, int &nextDat, int &nextTT,San& s) {
         while (true) {
@@ -124,9 +121,9 @@ public:
             cout << "|" << "4. Thanh toan" << "                                  |" << endl;
             cout << "|" << "5. Bao cao thong ke" << "                            | " << endl; //MENU làm việc của dự án
             cout << "|" << "6. Tim kiem khach hang" << "                         |" << endl;
-            cout << "|" << "7. Xuat toan bo thong danh sach khach hang" << "     |" << endl;
+            cout << "|" << "7. Xuat danh sach thong tin khach hang" << "         |" << endl;
             cout << "|" << "8. Xuat hoa don khach hang" << "                     |" << endl;
-            cout << "|" << "9. Thoat" << "                                       |" << endl;
+            cout << "|" << "0. Thoat" << "                                       |" << endl;
             cout << "=================================================" << endl;
             int c = nhapSo("Lua chon: ");
             switch (c) {
@@ -163,7 +160,7 @@ public:
                 Xuat_hoa_don(dsKh, dsDat, dsTT);
                 break;
             }
-            case 9:
+            case 0:
                 cout << "Thoat chuong trinh!";
                 return;
             default: {
@@ -189,20 +186,37 @@ private:
         cout << "2. Huy san" << "\n";
         int m = nhapSo("Lua chon: ");
         if (m == 1) {
+            DatSan d;
             int isMember = nhapSo("La thanh vien? (1-Co,0-Khach vang lai): ");
             int maKh;
             if (isMember == 1) {
                 maKh = nhapSo("Ma khach hang: ");
                 bool ok = false;
-                for (size_t i = 0;i < dsKh.size();i++) if (dsKh[i].maKh == maKh) ok = true;
-                if (!ok) { cout << "Khach hang khong hop le." << endl; }
+                int j;
+                for (size_t i = 0;i < dsKh.size();i++) {
+                    if (dsKh[i].maKh == maKh) {
+                    ok = true;
+                    j=i;
+                    break;
+                    }
+                }
+                if (!ok) {
+                    cout << "Khach hang khong hop le." << endl;
+                    return; 
+                } else {
+                    d.kh = dsKh[j];
+                }
             }
             else {
                 maKh = 0;
+                KhachHang vangLai;
+                vangLai.maKh = 0;
+                vangLai.ten = "Khach vang lai";
+                vangLai.soDienThoai = "";
+                vangLai.diaChi = "";
+                d.kh = vangLai;
             }
-            DatSan d;
             d.maDat = nextDat++;
-            d.maKh = maKh;
             nhapNgay(d.ngay);
 			cout << "*-*-*-*-*-* Danh sach san *-*-*-*-*-*" << endl;
 			for (size_t i = 0;i < dsSan.size();i++) {
@@ -220,24 +234,24 @@ private:
 				cout << endl;
 			}
 			cout << "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" << endl;
+            cout << "Khung gio mo cua tu 5:00 - 22:00." << endl;
             d.maSan = nhapSo("*Ma san (1-12): ");
             while (d.maSan < 1 || d.maSan>12) {
                 cout << "Ma san khong hop le. Vui long nhap lai." << endl;
-                d.maSan = nhapSo("Ma san (1-12): ");
+                d.maSan = nhapSo("Ma san (1-12): ");    
             }
-            cout << "*Nhap gio bat dau (g p): "; cin >> d.bd.gio >> d.bd.phut;
+            cout << "*Nhap gio, phut bat dau (g p): "; cin >> d.bd.gio >> d.bd.phut;
             while (!hopLeGio(d.bd)) {
                 cout << "Gio khong hop le. Vui long nhap lai: "; cin >> d.bd.gio >> d.bd.phut;
             }
-            cout << "*Nhap gio ket thuc (g p): "; cin >> d.kt.gio >> d.kt.phut;
+            cout << "*Nhap gio, phut ket thuc (g p): "; cin >> d.kt.gio >> d.kt.phut;
             while (!hopLeGio(d.kt)) {
                 cout << "Gio khong hop le. Vui long nhap lai: "; cin >> d.kt.gio >> d.kt.phut;
             }
             bool trung = false;
             for (size_t i = 0;i < dsDat.size();i++) {
                 if (dsDat[i].maSan == d.maSan && dsDat[i].ngay == d.ngay) {
-                    if (trungGio(d.bd, dsDat[i].bd, dsDat[i].kt) ||
-                        trungGio(d.kt, dsDat[i].bd, dsDat[i].kt)) {
+                    if (trungGio(d.bd, d.kt, dsDat[i].bd, dsDat[i].kt)) {
                         trung = true; break;
                     }
                 }
@@ -249,11 +263,12 @@ private:
             dsDat.push_back(d);
             double tien = tinhTien(d.bd, d.kt,s);
             ThanhToan tt;
-            tt.maDat = d.maDat;
             tt.daThanh = false;
             cout << "*So tien can thanh toan: " << tien << " nghin" << endl;
             if (isMember == 0) {
                 cout <<"Khach vang lai phai thanh toan tien!" << endl;
+                    tt.maDat = d.maDat;
+                    tt.kh = d.kh;
                     tt.soTien = tien;
                     tt.daThanh = true;
                     dsTT.push_back(tt);
@@ -263,6 +278,8 @@ private:
             else {
                 int daTT = nhapSo("Ban muon (1-Thanh toan, 0-Tra sau)?: ");
                 if (daTT == 1) {
+                    tt.maDat = d.maDat;
+                    tt.kh = d.kh;
                     tt.soTien = tien;
                     tt.no = 0.0;
                     tt.daThanh = true;
@@ -271,6 +288,8 @@ private:
                     cout << "                 Ma dat san: " << setw(4) << setfill('0') << d.maDat << setfill(' ') << '.' << endl;
                 }
                 else {
+                    tt.maDat = d.maDat;
+                    tt.kh = d.kh;
                     tt.no = tien;
                     tt.soTien = 0.0;
                     tt.daThanh = false;
@@ -341,15 +360,15 @@ private:
                 cout << "*-*-*-*-*-*-* Lich su dat san *-*-*-*-*-*-*" << endl;
                 int dem = 0;
                 for (size_t i = 0; i < dsDat.size(); i++) {
-                    if (dsDat[i].maKh == ma) {
+                    if (dsDat[i].kh.maKh == ma) {
                         dem++;
                     }
                 }
                 if (dem == 0) { cout << "      Khach hang chua thuc hien dat san!"; }
                 else {
                 for (size_t i = 0; i < dsDat.size(); i++) {
-                    if (dsDat[i].maKh == ma) {
-                        cout << "Ma dat: " << dsDat[i].maDat << ", San " << dsDat[i].maSan
+                    if (dsDat[i].kh.maKh == ma) {
+                        cout << "Ma dat: " << setw(4) << setfill('0') << dsDat[i].maDat << ", San " << dsDat[i].maSan
                             << ", " << dsDat[i].ngay.ngay << "/" << dsDat[i].ngay.thang
                             << "/" << dsDat[i].ngay.nam << ", "
                             << dsDat[i].bd.gio << ":" << setw(2) << setfill('0') << dsDat[i].bd.phut
@@ -362,16 +381,45 @@ private:
         }
     }
     void Thanh_toan(vector<ThanhToan>& dsTT) {
-        cout << "Lich su thanh toan:" << endl;
+        cout << "1. Lich su thanh toan\n";
+        cout << "2. Tra no\n";
+        int m = nhapSo("Lua chon: ");
+        if (m == 1) {
+            cout << "Lich su thanh toan:" << endl;
         for (size_t i = 0;i < dsTT.size();i++) {
             cout<< " Ma dat: " << setw(4) << setfill('0') << dsTT[i].maDat << setfill(' ') << ", "
-                << " So tien:" << (dsTT[i].daThanh==true ? dsTT[i].soTien : dsTT[i].no) << ", "
-                << " Da Thanh Toan:" << (dsTT[i].daThanh==true ? "Roi" : "Chua") << endl;
+                    << " So tien:" << (dsTT[i].daThanh ? dsTT[i].soTien : dsTT[i].no) << ", "
+                    << " Da Thanh Toan:" << (dsTT[i].daThanh ? "Roi" : "Chua") << endl;
+            }
+        }
+        if (m == 2) {
+            cout << "Nhap ma dat san: ";
+            int madat,j;
+            cin >> madat;
+            bool ktra = false;
+            for (size_t i = 0; i < dsTT.size();i++) {
+                if (dsTT[i].maDat == madat) {
+                    ktra = true;
+                    j=i;
+                    break;
+                }
+            }
+            if (!ktra) { cout << "Khong ton tai ma dat!"; return; }
+            else {
+                {
+                    if (dsTT[j].daThanh == false && dsTT[j].maDat == madat) {
+                        dsTT[j].soTien = dsTT[j].no;
+                        dsTT[j].no = 0.0;
+                        dsTT[j].daThanh = true;
+                    }
+                }
+                cout << "*-*-*-* Tra no thanh cong *-*-*-*\n";
+            }
         }
     }
     void Doanh_thu(vector<ThanhToan>& dsTT, vector<KhachHang>& dsKh, vector<DatSan>& dsDat) {
-        cout << "1.Xem doanh thu\n";
-        cout << "2.Xem no khach hang\n";
+        cout << "1. Xem doanh thu\n";
+        cout << "2. Danh sach khach hang con no\n";
         int n = nhapSo("Lua chon : ");
         int count = 0;
         if (n == 1) {
@@ -381,16 +429,18 @@ private:
             count++;
         }
         cout << "Doanh thu: " << sum << " nghin" << endl;
+        cout << "So luot dat san: " << count << endl;
         }
         if (n == 2) {
-            double sum = 0.0; 
-            for (size_t i = 0;i < dsTT.size();i++) {
-                sum += dsTT[i].no;
-                count++;
+            cout << "Danh sach khach hang con no:" << endl;
+            for (size_t i = 0;i<dsTT.size();i++) {
+                if (dsTT[i].daThanh == false)
+                    cout << "Ma dat san: " << setw(4) << setfill('0') << dsTT[i].maDat << ", "
+                         << "Ma khach hang: " << setw(4) << setfill('0') << dsTT[i].kh.maKh << ", "
+                         << "Ten khach hang: " << dsTT[i].kh.ten<< ", "
+                         << "So tien: " << dsTT[i].no << endl;
             }
-            cout << "Tong so tien khach con no: " << sum << " nghin" << endl; 
         }
-        cout << "So luot dat san: " << count << endl;
 }
     void Tim_kiem(vector<KhachHang>& dsKh) {
         string key;
@@ -455,7 +505,7 @@ private:
             fs << "==================================================" << "\n";
             fs << "San da dat: " << "\n";
             for (size_t i = 0; i < dsDat.size(); i++) {
-                if (dsKh[i].maKh == maKh) {
+                if (dsDat[i].kh.maKh == maKh) {
                     fs << "Ma dat: " << setw(4) << setfill('0') << dsDat[i].maDat << setfill(' ') << "\n";
                     fs << "Ma san: " << dsDat[i].maSan << "\n";
                     fs << "Ngay dat: " << dsDat[i].ngay.ngay << "/" << dsDat[i].ngay.thang
@@ -464,16 +514,15 @@ private:
                         << "\n";
                     fs << "Gio ket thuc: " << dsDat[i].kt.gio << ":" << setw(2) << setfill('0') << dsDat[i].kt.phut
                         << "\n";
-                    fs << "So tien: " << dsTT[i].soTien << "\n";
-                    for (size_t j = 0; j < dsTT.size(); j++) {
-                        if (dsTT[j].maDat == dsDat[i].maDat && dsTT[j].daThanh == true) {
+                    fs << "So tien: " << (dsTT[i].daThanh ? dsTT[i].soTien : dsTT[i].no) << "\n";
+                   
+                        if (dsTT[i].daThanh == true) 
                             fs << "*-*-*-*-*-* Khach hang da thanh toan *-*-*-*-*-*\n";
-                        }
-                        else fs << "*-*-*-*-* Khach hang chua thanh toan! *-*-*-*-*";
+                        
+                        else fs << "*-*-*-*-* Khach hang chua thanh toan. Vui long thanh toan! *-*-*-*-*\n";
                     }
-                    fs << "Cam on quy khach da su dung dich vu!" << "\n";
                 }
-            }
+            fs << "Cam on quy khach da su dung dich vu!" << "\n";            
         }
         else cout << "Khong tim thay ma khach hang";
         fs.close();
@@ -504,7 +553,7 @@ void Tinhnang::nhapNgay(Ngay& n) {
 }
 
 bool Tinhnang::hopLeGio(const Gio& g) {
-    return g.gio >= 0 && g.gio < 24 && g.phut >= 0 && g.phut < 60;
+    return g.gio >= 5 && g.gio < 22 && g.phut >= 0 && g.phut < 60;
 }
 
 double Tinhnang::tinhTien(const Gio& bd, const Gio& kt, const San& s) {
@@ -514,8 +563,9 @@ double Tinhnang::tinhTien(const Gio& bd, const Gio& kt, const San& s) {
     return gio * s.giaThuong;
 }
 
-bool Tinhnang::trungGio(const Gio& t, const Gio& bd, const Gio& kt) {
-    return !(t < bd) && (t < kt);
+bool Tinhnang::trungGio(const Gio& bd1, const Gio& kt1, const Gio& bd2, const Gio& kt2) {
+    // Trả về true nếu hai khoảng [bd1, kt1] và [bd2, kt2] giao nhau
+    return !(kt1 <= bd2 || kt2 <= bd1);
 }
 
 string Tinhnang::to_string(int x) {
