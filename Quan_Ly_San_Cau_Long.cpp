@@ -201,14 +201,25 @@ private:
         int m = nhapSo("lua chon: ");
         if (m == 1) {
             cout << "-*-*-*-*-*-*-* Danh sach san *-*-*-*-*-*-*-*-*-*" << endl;
-            for (size_t i = 0;i < dsSan.size();i++) {
-                cout << "|" << "San " << dsSan[i].layMaSan()
-                    << " (" << dsSan[i].layLoai()
-                    << ", " << dsSan[i].layBeMat() << ")";
-                if (dsSan[i].layTrangThai() == true) { cout << "(Trang thai tot)\n"; }
-                else { cout << "(Dang bao tri!)\n"; }
+            // In bảng danh sách sân với khung chữ nhật đẹp
+            int width1 = 8, width2 = 15, width3 = 15, width4 = 15;
+            cout << "+" << string(width1, '-') << "+" << string(width2, '-') << "+" << string(width3, '-') << "+" << string(width4, '-') << "+" << endl;
+            // In tiêu đề
+            cout << "|" << left << setw(width1) << "Ma San"
+                 << "|" << left << setw(width2) << "Loai"
+                 << "|" << left << setw(width3) << "Be Mat"
+                 << "|" << left << setw(width4) << "Trang Thai" << "|" << endl;
+            // In dòng phân cách tiêu đề
+            cout << "+" << string(width1, '-') << "+" << string(width2, '-') << "+" << string(width3, '-') << "+" << string(width4, '-') << "+" << endl;
+            // In từng dòng dữ liệu
+            for (size_t i = 0; i < dsSan.size(); i++) {
+                cout << "|" << left << setw(width1) << dsSan[i].layMaSan()
+                     << "|" << left << setw(width2) << dsSan[i].layLoai()
+                     << "|" << left << setw(width3) << dsSan[i].layBeMat()
+                     << "|" << left << setw(width4) << (dsSan[i].layTrangThai() ? "Tot" : "Bao tri") << "|" << endl;
+                // Nếu muốn kẻ bên trong từng dòng:
+                cout << "+" << string(width1, '-') << "+" << string(width2, '-') << "+" << string(width3, '-') << "+" << string(width4, '-') << "+" << endl;
             }
-            cout << "-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*\n";
         }
         if (m == 2) {
             while (true) {
@@ -279,7 +290,7 @@ private:
                     d.kh = dsKh[j];
                 }
             }
-            else {
+            else if (isMember == 0) {
                 maKh = 0;
                 KhachHang vangLai;
                 vangLai.maKh = 0;
@@ -287,6 +298,10 @@ private:
                 vangLai.soDienThoai = "";
                 vangLai.diaChi = "";
                 d.kh = vangLai;
+            }
+            else {
+                cout << "Lua chon khong hop le." << endl;
+                return;
             }
             d.maDat = nextDat++;
             nhapNgay(d.ngay);
@@ -321,10 +336,14 @@ private:
             while (!hopLeGio(d.kt)) {
                 cout << "Gio khong hop le. Vui long nhap lai: "; cin >> d.kt.gio >> d.kt.phut;
             }
+            if (d.kt <= d.bd) {
+                cout << "Gio ket thuc phai lon hon gio bat dau." << endl;
+                return;
+            }
             bool trung = false;
             for (size_t i = 0;i < dsDat.size();i++) {
                 if (dsDat[i].maSan == d.maSan && dsDat[i].ngay == d.ngay) {
-                    if (trungGio(d.bd, d.kt, dsDat[i].bd, dsDat[i].kt)) {
+                    if (trungGio(d.bd, d.kt, dsDat[i].bd, dsDat[i].kt) ) {
                         trung = true; break;
                     }
                 }
@@ -371,6 +390,7 @@ private:
                     cout << "                 Ma dat san: " << setw(4) << setfill('0') << d.maDat << '.' << endl;
                 }
             }
+            cout << setfill(' ');
         }
         }
         else if (m == 2) {
